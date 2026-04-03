@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nyt-background: #fdfdfd;
+  --color-nyt-border: #e2e2e2;
+  --color-nyt-text: #1a1a1a;
+  --color-nyt-gray: #5a5a5a;
+}
+
+body {
+  background-color: var(--color-nyt-background);
+  color: var(--color-nyt-text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
