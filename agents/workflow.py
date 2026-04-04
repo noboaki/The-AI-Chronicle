@@ -128,8 +128,14 @@ if __name__ == "__main__":
     for code, lang in languages:
         print(f"\\n--- Translating to {lang} ---")
         time.sleep(15) # Stay under 5 RPM limit
-        translated = translator.translate_article(en_article, lang)
-        print(translated[:150] + "...") # Print snippet
+        try:
+            translated = translator.translate_article(en_article, lang)
+            print(translated[:150] + "...") # Print snippet
+        except Exception as e:
+            print(f"Translation to {lang} failed (Daily quota likely exceeded). Using fallback text.")
+            first_line = en_article.split('\\n')[0].replace('#', '').strip()
+            translated = f"# {first_line}\\n\\n번역이 지연 중입니다 (API 일일 사용량 초과)."
+            
         translations[code] = translated
         
     save_db(en_article, translations)
