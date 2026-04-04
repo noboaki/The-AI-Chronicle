@@ -14,14 +14,15 @@ export const metadata: Metadata = {
   description: "AI-powered news covering the latest developer trends.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }>) {
-  const currentLang = params.lang || "en";
+  const { lang } = await params;
+  const currentLang = lang || "en";
 
   return (
     <html lang={currentLang}>

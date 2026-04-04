@@ -12,8 +12,8 @@ interface Article {
   published_at?: string;
 }
 
-export default async function ArticlePage({ params }: { params: { lang: string, id: string } }) {
-  const { lang, id } = params;
+export default async function ArticlePage({ params }: { params: Promise<{ lang: string, id: string }> }) {
+  const { lang, id } = await params;
   
   let article: Article | null = null;
   

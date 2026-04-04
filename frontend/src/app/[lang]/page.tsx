@@ -9,9 +9,10 @@ interface Article {
   ai_model?: string;
 }
 
-export default async function Home({ params }: { params: { lang: string } }) {
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   let articles: Article[] = [];
-  const lang = params.lang || "en";
+  const { lang: unwrappedLang } = await params;
+  const lang = unwrappedLang || "en";
 
   try {
     // Fetch data from the Go backend, passing language code
