@@ -10,6 +10,7 @@ type Article struct {
 	Content         *string    `json:"content,omitempty"`
 	Summary         *string    `json:"summary,omitempty"`
 	Category        *string    `json:"category,omitempty"`
+	ImageURL        *string    `json:"image_url,omitempty"`
 	AIModel         *string    `json:"ai_model,omitempty"`
 	ConfidenceScore *float64   `json:"confidence_score,omitempty"`
 	Status          string     `json:"status"`

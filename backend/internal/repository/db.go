@@ -31,7 +31,7 @@ func (r *Repository) GetArticles(ctx context.Context, limit int, lang string) ([
 			COALESCE(t.subtitle, a.subtitle) as subtitle, 
 			COALESCE(t.content, a.content) as content, 
 			COALESCE(t.summary, a.summary) as summary, 
-			a.category, a.ai_model, a.confidence_score, a.status, a.published_at, a.created_at
+			a.category, a.image_url, a.ai_model, a.confidence_score, a.status, a.published_at, a.created_at
 		FROM articles a
 		LEFT JOIN article_translations t 
 		  ON t.article_id = a.id AND t.language_code = $1
@@ -48,7 +48,7 @@ func (r *Repository) GetArticles(ctx context.Context, limit int, lang string) ([
 	var articles []models.Article
 	for rows.Next() {
 		var a models.Article
-		err := rows.Scan(&a.ID, &a.TrendID, &a.Title, &a.Subtitle, &a.Content, &a.Summary, &a.Category, &a.AIModel, &a.ConfidenceScore, &a.Status, &a.PublishedAt, &a.CreatedAt)
+		err := rows.Scan(&a.ID, &a.TrendID, &a.Title, &a.Subtitle, &a.Content, &a.Summary, &a.Category, &a.ImageURL, &a.AIModel, &a.ConfidenceScore, &a.Status, &a.PublishedAt, &a.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -66,14 +66,14 @@ func (r *Repository) GetArticleByID(ctx context.Context, id string, lang string)
 			COALESCE(t.subtitle, a.subtitle), 
 			COALESCE(t.content, a.content), 
 			COALESCE(t.summary, a.summary), 
-			a.category, a.ai_model, a.confidence_score, a.status, a.published_at, a.created_at
+			a.category, a.image_url, a.ai_model, a.confidence_score, a.status, a.published_at, a.created_at
 		FROM articles a
 		LEFT JOIN article_translations t 
 		  ON t.article_id = a.id AND t.language_code = $1
 		WHERE a.id = $2`
 		
 	var a models.Article
-	err := r.Pool.QueryRow(ctx, query, lang, id).Scan(&a.ID, &a.TrendID, &a.Title, &a.Subtitle, &a.Content, &a.Summary, &a.Category, &a.AIModel, &a.ConfidenceScore, &a.Status, &a.PublishedAt, &a.CreatedAt)
+	err := r.Pool.QueryRow(ctx, query, lang, id).Scan(&a.ID, &a.TrendID, &a.Title, &a.Subtitle, &a.Content, &a.Summary, &a.Category, &a.ImageURL, &a.AIModel, &a.ConfidenceScore, &a.Status, &a.PublishedAt, &a.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

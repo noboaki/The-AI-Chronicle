@@ -49,6 +49,26 @@ class TranslatorAgent:
         response = self.model.generate_content(prompt)
         return response.text
 
+class PhotographerAgent:
+    def __init__(self):
+        self.model = genai.GenerativeModel("gemini-flash-latest")
+        
+    def generate_image_url(self, article_text):
+        prompt = f"""
+        Read the following news article and generate a concise English image generation prompt (max 8 keywords separated by commas) that visually summarizes it.
+        No conversational text, just the keywords.
+        Example output: cyberpunk hacker, glowing monitors, future city
+        
+        Article:
+        {article_text}
+        """
+        response = self.model.generate_content(prompt)
+        # Format the keywords for a URL
+        import urllib.parse
+        keywords = urllib.parse.quote(response.text.strip())
+        url = f"https://image.pollinations.ai/prompt/{keywords}?width=1200&height=630&nologo=true"
+        return url
+
 import psycopg2
 import psycopg2.extras
 
@@ -67,7 +87,7 @@ def fetch_raw_posts(limit=10):
         print("DB Error:", e)
         return []
 
-def save_db(en_article, translated_dict):
+def save_db(en_article, translated_dict, image_url=""):
     conn = psycopg2.connect(DB_URL)
     
     # Extract title from the first line of markdown
@@ -79,10 +99,10 @@ def save_db(en_article, translated_dict):
         with conn.cursor() as cur:
             # Save English article
             cur.execute("""
-                INSERT INTO articles (title, content, category, ai_model, status, published_at)
-                VALUES (%s, %s, %s, %s, 'published', CURRENT_TIMESTAMP)
+                INSERT INTO articles (title, content, category, ai_model, image_url, status, published_at)
+                VALUES (%s, %s, %s, %s, %s, 'published', CURRENT_TIMESTAMP)
                 RETURNING id
-            """, (title, en_article, "Development", "gemini-flash-latest"))
+            """, (title, en_article, "Development", "gemini-flash-latest", image_url))
             
             article_id = cur.fetchone()[0]
             
@@ -138,4 +158,14 @@ if __name__ == "__main__":
             
         translations[code] = translated
         
-    save_db(en_article, translations)
+    print("\nGenerating Image URL...")
+    time.sleep(15) # Stay under API limits
+    photographer = PhotographerAgent()
+    try:
+        image_url = photographer.generate_image_url(en_article)
+        print("Generated Image URL:", image_url)
+    except Exception as e:
+        print("Image generation failed (Quota). Using fallback image.")
+        image_url = "https://image.pollinations.ai/prompt/beautiful%20newspaper%20printing%20press%20cyberpunk?width=1200&height=630&nologo=true"
+        
+    save_db(en_article, translations, image_url)
