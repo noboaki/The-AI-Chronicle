@@ -21,7 +21,7 @@ class TrendAnalyzer:
 
 class JournalistAgent:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-pro-latest")
+        self.model = genai.GenerativeModel("gemini-flash-latest")
 
     def generate_article(self, trend_title, community_discussions):
         prompt = f"""
