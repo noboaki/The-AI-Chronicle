@@ -1,4 +1,5 @@
 import os
+import time
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -79,6 +80,7 @@ if __name__ == "__main__":
     
     journalist = JournalistAgent()
     print("\\nGenerating English Article...")
+    time.sleep(12) # Delay to avoid hitting 5 RPM free tier limit
     en_article = journalist.generate_article("OpenAI o1-mini release", str(forums))
     print(en_article)
     
@@ -88,5 +90,6 @@ if __name__ == "__main__":
     print("\\nGenerating Translations...")
     for lang in languages:
         print(f"\\n--- Translating to {lang} ---")
+        time.sleep(15) # Stay under 5 RPM limit
         translated = translator.translate_article(en_article, lang)
         print(translated[:150] + "...") # Print snippet
