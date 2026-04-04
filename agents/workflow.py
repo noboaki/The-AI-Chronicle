@@ -67,6 +67,43 @@ def fetch_raw_posts(limit=10):
         print("DB Error:", e)
         return []
 
+def save_db(en_article, translated_dict):
+    conn = psycopg2.connect(DB_URL)
+    
+    # Extract title from the first line of markdown
+    title = en_article.split("\\n")[0].replace("#", "").strip()
+    if not title:
+        title = "Trending AI News"
+
+    try:
+        with conn.cursor() as cur:
+            # Save English article
+            cur.execute("""
+                INSERT INTO articles (title, content, category, ai_model, status, published_at)
+                VALUES (%s, %s, %s, %s, 'published', CURRENT_TIMESTAMP)
+                RETURNING id
+            """, (title, en_article, "Development", "gemini-flash-latest"))
+            
+            article_id = cur.fetchone()[0]
+            
+            # Save translations
+            for lang_code, text in translated_dict.items():
+                trans_title = text.split("\\n")[0].replace("#", "").strip()
+                if not trans_title:
+                    trans_title = title
+                    
+                cur.execute("""
+                    INSERT INTO article_translations (article_id, language_code, title, content)
+                    VALUES (%s, %s, %s, %s)
+                """, (article_id, lang_code, trans_title, text))
+                
+            conn.commit()
+            print(f"\\nArticle '{title}' and translations saved to DB! (ID: {article_id})")
+    except psycopg2.Error as e:
+        print("Failed to save to DB:", e)
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
     forums = fetch_raw_posts(limit=15)
     
@@ -76,20 +113,23 @@ if __name__ == "__main__":
     
     analyzer = TrendAnalyzer()
     print("Detecting trends...")
-    print(analyzer.detect_trends(forums))
     
     journalist = JournalistAgent()
     print("\\nGenerating English Article...")
     time.sleep(12) # Delay to avoid hitting 5 RPM free tier limit
-    en_article = journalist.generate_article("OpenAI o1-mini release", str(forums))
+    en_article = journalist.generate_article("AI Community Trends", str(forums))
     print(en_article)
     
     translator = TranslatorAgent()
-    languages = ['Korean (ko)', 'Chinese (zh)', 'Spanish (es)', 'Japanese (ja)']
+    languages = [('ko', 'Korean'), ('zh', 'Chinese'), ('es', 'Spanish'), ('ja', 'Japanese')]
     
     print("\\nGenerating Translations...")
-    for lang in languages:
+    translations = {}
+    for code, lang in languages:
         print(f"\\n--- Translating to {lang} ---")
         time.sleep(15) # Stay under 5 RPM limit
         translated = translator.translate_article(en_article, lang)
         print(translated[:150] + "...") # Print snippet
+        translations[code] = translated
+        
+    save_db(en_article, translations)
