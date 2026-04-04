@@ -9,7 +9,7 @@ genai.configure(api_key=api_key)
 
 class TrendAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-flash-latest")
+        self.model = genai.GenerativeModel("gemini-flash-latest")
 
     def detect_trends(self, raw_posts):
         prompt = "Analyze the following community posts and group them into 3 trending topics:\\n"
@@ -21,7 +21,7 @@ class TrendAnalyzer:
 
 class JournalistAgent:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        self.model = genai.GenerativeModel("gemini-pro-latest")
 
     def generate_article(self, trend_title, community_discussions):
         prompt = f"""
@@ -35,7 +35,7 @@ class JournalistAgent:
 
 class TranslatorAgent:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-flash-latest")
+        self.model = genai.GenerativeModel("gemini-flash-latest")
         
     def translate_article(self, english_article, target_language):
         prompt = f"""
