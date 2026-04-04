@@ -62,16 +62,16 @@ export default async function ArticlePage({ params }: { params: Promise<{ lang: 
       </header>
       
       <div className="font-inter text-lg leading-relaxed text-gray-900 space-y-6">
-        {article.content.split('\\n\\n').map((paragraph, idx) => {
+        {article.content.split('\n\n').map((paragraph, idx) => {
           if (paragraph.startsWith('#')) {
             const hLevel = paragraph.match(/^#+/)?.[0].length || 1;
-            const text = paragraph.replace(/^#+\\s*/, '').replace(/\\*\\*/g, '');
+            const text = paragraph.replace(/^#+\s*/, '').replace(/\*\*/g, '');
             if (hLevel === 1 || hLevel === 2) {
               return <h2 key={idx} className="font-playfair text-3xl font-bold mt-8 mb-4">{text}</h2>;
             }
             return <h3 key={idx} className="font-playfair text-2xl font-bold mt-6 mb-3">{text}</h3>;
           }
-          const formattedText = paragraph.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');
+          const formattedText = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
           return <p key={idx} dangerouslySetInnerHTML={{ __html: formattedText }}></p>;
         })}
       </div>
